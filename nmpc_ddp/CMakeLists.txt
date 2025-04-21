@@ -40,7 +40,8 @@ if(NOT NMPC_STANDALONE)
     Eigen3
   )
 else()
-  set(BUILD_TESTING OFF)
+  include(CTest)
+  enable_testing()
 endif()
 
 add_library(nmpc_ddp INTERFACE)
@@ -69,8 +70,12 @@ if(NOT NMPC_STANDALONE)
   )
 endif()
 
-install(TARGETS nmpc_ddp EXPORT "${TARGETS_EXPORT_NAME}")
+install(TARGETS nmpc_ddp EXPORT nmpc_ddpTargets)
 install(DIRECTORY include/nmpc_ddp DESTINATION include)
+if(NOT NMPC_STANDALONE)
+  ament_export_targets(nmpc_ddpTargets)
+  ament_export_include_directories(include)
+endif()
 
 if(BUILD_TESTING)
   add_subdirectory(tests)

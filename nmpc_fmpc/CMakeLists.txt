@@ -30,11 +30,11 @@ if(NOT NMPC_STANDALONE)
   # Eigen
   find_package(Eigen3 REQUIRED)
   include_directories(${EIGEN3_INCLUDE_DIR})
-
-  ament_package()
 else()
-  set(BUILD_TESTING OFF)
-  find_package(nmpc_ddp REQUIRED)
+  find_package(Eigen3 REQUIRED)
+  include_directories(${EIGEN3_INCLUDE_DIR})
+  include(CTest)
+  enable_testing()
 endif()
 
 add_library(nmpc_fmpc INTERFACE)
@@ -49,12 +49,17 @@ if(OPTIMIZE_FOR_NATIVE)
   target_compile_options(nmpc_fmpc INTERFACE -march=native)
 endif()
 
-install(TARGETS nmpc_fmpc EXPORT "${TARGETS_EXPORT_NAME}")
+install(TARGETS nmpc_fmpc EXPORT nmpc_fmpcTargets)
 install(DIRECTORY include/nmpc_fmpc DESTINATION include)
+if(NOT NMPC_STANDALONE)
+  ament_export_targets(nmpc_fmpcTargets)
+  ament_export_include_directories(include)
+endif()
 
 if(NOT NMPC_STANDALONE)
   ament_target_dependencies(nmpc_fmpc INTERFACE
     rclcpp
+    nmpc_ddp
     std_srvs
     visualization_msgs
   )
@@ -66,4 +71,8 @@ endif()
 
 if(INSTALL_DOCUMENTATION)
   add_subdirectory(doc)
+endif()
+
+if(NOT NMPC_STANDALONE)
+  ament_package()
 endif()

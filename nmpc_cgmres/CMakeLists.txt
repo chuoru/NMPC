@@ -33,10 +33,9 @@ else()
   find_package(Eigen3 MODULE REQUIRED)
 endif()
 
-if(NOT NMPC_STANDALONE)
-  ament_package()
-else()
-  set(BUILD_TESTING OFF)
+if(NMPC_STANDALONE)
+  include(CTest)
+  enable_testing()
 endif()
 
 add_library(nmpc_cgmres
@@ -51,9 +50,12 @@ else()
   target_include_directories(nmpc_cgmres SYSTEM PUBLIC "${EIGEN3_INCLUDE_DIR}")
 endif()
 
-install(TARGETS nmpc_cgmres EXPORT "${TARGETS_EXPORT_NAME}")
+install(TARGETS nmpc_cgmres EXPORT nmpc_cgmresTargets)
 install(DIRECTORY include/nmpc_cgmres DESTINATION include)
-
+if(NOT NMPC_STANDALONE)
+  ament_export_targets(nmpc_cgmresTargets)
+  ament_export_include_directories(include)
+endif()
 
 if(OPTIMIZE_FOR_NATIVE)
   # TODO fix segmentation faults
@@ -67,4 +69,8 @@ endif()
 
 if(INSTALL_DOCUMENTATION)
   add_subdirectory(doc)
+endif()
+
+if(NOT NMPC_STANDALONE)
+  ament_package()
 endif()
